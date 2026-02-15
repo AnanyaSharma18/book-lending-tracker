@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Lending Tracker</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #aaa;
+            padding: 8px;
+            text-align: left;
+        }
+        .status-available {
+            color: green;
+            font-weight: bold;
+        }
+        .status-lent {
+            color: red;
+            font-weight: bold;
+        }
+        .btn-lend {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .btn-return {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .form-inline {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+<h1 style="text-align: center;">Book Lending Tracker</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ISBN</th>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Action</th>
+        <th>Member (for lending)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}">
+        <td th:text="${book.isbn}"></td>
+        <td th:text="${book.title}"></td>
+        <td>
+<span th:if="${book.available}"
+      th:text="'Available'"
+      class="status-available"></span>
+            <span th:unless="${book.available}"
+                  th:text="'Lent Out'"
+                  class="status-lent"></span>
+        </td>
+        <td>
+            <!-- If book is available show Lend button -->
+            <form th:if="${book.available}"
+                  th:action="@{/ui/lend}"
+                  method="post"
+                  class="form-inline">
+                <input type="hidden" name="isbn" th:value="${book.isbn}"/>
+                <select name="memberId" required>
+                    <option value="" disabled selected>Select member</option>
+                    <option th:each="m : ${members}"
+                            th:value="${m.userId}"
+                            th:text="${m.name + ' (ID=' + m.userId + ')'}"></option>
+                </select>
+                <button type="submit" class="btn-lend">Lend</button>
+            </form>
+            <!-- If book is lent out show Return button -->
+            <form th:unless="${book.available}"
+                  th:action="@{/ui/return}"
+                  method="post"
+                  class="form-inline">
+                <input type="hidden" name="isbn" th:value="${book.isbn}"/>
+                <button type="submit" class="btn-return">Return</button>
+            </form>
+        </td>
+        <td>
+            <!-- Just shows the dropdown for visibility; actual use is in the Lend form
+            -->
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
